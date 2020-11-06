@@ -1,0 +1,688 @@
+<html>
+<head>
+<style>
+<! This is the CSS portion of the file. It defines the setup for the interface.>
+<! Header section.>
+#header{
+	height:80px;
+	width:1000px;
+
+	background-color:black;
+	color:white;
+
+	text-align:center;
+	line-height:80px;
+}
+
+<! Area where the GUI will be.>
+#options{
+	height:800px;
+	width:197px;
+	float:left;
+
+	background-color:#eeeeee;
+	colour:black;
+}
+
+<! Area where the drawing window will be located.>
+#simWindow{
+	height:800px;
+	width:700px;
+	float:left;
+
+	background-color:#DCDCDC;
+}
+
+<! Footer section.>
+#footer{
+	height:20px;
+	width:1000px;
+	clear:both;
+
+	background-color:black;
+	color:white;
+
+	text-align:center;
+}
+
+<! This is the HTML portion. It displays the interface and sets up the GUI>
+</style>
+
+<! The header is pretty bland, only displays the title.>
+<div id="header">
+	<h1>Fission Arc</h1>
+</div>
+
+<! This is where all the GUI buttons are created.>
+<div id="options">
+	<form id="optionPanal" onsubmit="return false;">
+		<b style="position:absolute; top:100px; left:20px; width:190px;">
+		Uranium:
+		</b>
+		<p style="position:absolute; top:110px; left:20px; width:190px;">
+		Total # of uranium:
+		</p>
+		<input style="position:absolute; top:145px; left:20px; width:160px;" type="input" id="totalUraniumNumber" placeholder="Uranium #" value="300"/>
+		<p style="position:absolute; top:150px; left:20px; width:190px;">
+		Temperature of uranium:
+		</p>
+		<input style="position:absolute; top:185px; left:20px; width:160px;" type="input" id="uraniumTemp" placeholder="Uranium temp" value="4000"/>
+
+		<b style="position:absolute; top:240px; left:20px; width:190px;">
+		Neutrons:
+		</b>
+		<p style="position:absolute; top:250px; left:20px; width:190px;">
+		Initial # of neutrons:
+		</p>
+		<input style="position:absolute; top:285px; left:20px; width:160px;" type="input" id="initNeutronNumber" placeholder="Neutron #" value="3"/>
+		<p style="position:absolute; top:290px; left:20px; width:190px;">
+		Temperature of neutrons:
+		</p>
+		<input style="position:absolute; top:325px; left:20px; width:160px;" type="input" id="neutronTemp" placeholder="Neutron temp" value="6000"/>
+
+		<b style="position:absolute; top:390px; left:20px; width:190px;">
+		Cross section values:
+		</b>
+		<p style="position:absolute; top:400px; left:20px; width:190px;">
+		 Absorb Scatter  Fission
+		</p>
+		<input min="0" type="number" style="position:absolute; top:435px; left:20px; width:50px;" type="input" id="Absorb" placeholder="Absorb" value="0.1" step="0.1"/>
+		<input min="0" type="number" style="position:absolute; top:435px; left:75px; width:50px;" type="input" id="Scatter" placeholder="Scatter" value="0.7" step="0.1"/>
+		<input min="0" type="number" style="position:absolute; top:435px; left:130px; width:50px;" type="input" id="Fission" placeholder="Fission" value="0.2" step="0.1"/>
+		<p style="position:absolute; top:440px; left:20px; width:190px;">
+		Total cross-section size:
+		</p>
+		<input type="number" min="1" max="25" style="position:absolute; top:475px; left:20px; width:160px;" type="input" id="csSize" placeholder="Total Size" value="7"/>
+
+		<b style="position:absolute; top:540px; left:20px; width:190px;">
+		Produced Neutrons:
+		</b>
+		<p style="position:absolute; top:550px; left:45px; width:190px;">
+		Min
+		</p>
+		<p style="position:absolute; top:550px; left:120px; width:190px;">
+		Max
+		</p>
+		<input type="number" min="0" style="position:absolute; top:585px; left:20px; width:75px;" type="input" id="minProduced" placeholder="min" value="1"/>
+		<input type="number" min="0" style="position:absolute; top:585px; left:100px; width:75px;" type="input" id="maxProduced" placeholder="max" value="5"/>
+		<b style="position:absolute; top:650px; left:20px; width:190px;">
+		Generation Colouring:
+		</b>
+		<p style="position:absolute; top:660px; left:45px; width:190px;">
+		On
+		</p>
+		<p style="position:absolute; top:660px; left:120px; width:190px;">
+		Off
+		</p>
+		<input style="position:absolute; top:695px; left:45px;" type="radio" name="colouring" value="true" checked id="colouringOn">
+		<input style="position:absolute; top:695px; left:120px;" type="radio" name="colouring" value="false" id="colouringOff">
+
+		<input style="position:absolute; top:765px; left:20px; width:170px;" type="submit" onclick="saveOptions();" value="Save options"/>
+		<input style="position:absolute; top:795px; left:20px; width:170px;" type="submit" onclick="begin();" value="Start"/>
+		<input style="position:absolute; top:825px; left:20px; width:170px;" type="submit" onclick="pause();" value="Pause"/>
+		<input style="position:absolute; top:855px; left:20px; width:170px;" type="submit" onclick="capture();" value="Save Paths"/>
+	</form>
+</div>
+
+<! This creates the canvases used for drawing everything.>
+<div id="simWindow">
+	<img src="reactorBG2.png" alt="reactorBG" style="position:absolute; top:88; left:206" height="800" width="800">
+	<canvas id="lyr0" width="800" height="800" style="border:2px solid #000000; position: absolute; left:204; top:86; z-index: 0"></canvas>
+	<canvas id="lyr1" width="800" height="800" style="border:2px solid #000000; position: absolute; left:204; top:86; z-index: 2"></canvas>
+	<canvas id="lyr05" width="800" height="800" style="border:2px solid #000000; position: absolute; left:204; top:86; z-index: 1"></canvas>
+</div>
+
+<! Footer is pretty bland too, just displays the credits etc.>
+<div id="footer">
+	Freddy Wordingham
+</div>
+</head>
+</html>
+
+<script>
+// Links the three canvases to variables for drawing.
+var lyr0 = document.getElementById("lyr0").getContext("2d");
+var lyr1 = document.getElementById("lyr1").getContext("2d");
+var lyr05 = document.getElementById("lyr05").getContext("2d");
+
+// Sets the transparency of the canvases, default value is 1.0 (opaque).
+lyr0.globalAlpha=0.2;
+lyr05.globalAlpha=0.1;
+
+// Sets the fonts and font size for each canvas.
+lyr0.font="30px Georgia";
+lyr05.font="30px Georgia";
+lyr1.font="30px Georgia";
+
+// Function for drawing lines.
+// Similar functions are employed for the other geometries too.
+// a,b,c & d, define the starting (a,b) and ending (c,d), xy coordinates of the line.
+// Colour is colour of the line, linewidth is width of the line.
+// Layer determiners which layer to draw the line too.
+function drawLine(a,b,c,d,colour,linewidth,layer){
+	// Note that there is likely a better way for switching canvas than I have used here.
+	if(layer==0){
+		lyr0.strokeStyle = colour;
+		lyr0.lineStyle = colour;
+		lyr0.lineWidth = linewidth;
+		lyr0.beginPath();
+		lyr0.moveTo(a,b);
+		lyr0.lineTo(c,d);
+		lyr0.stroke();
+	}
+	if(layer==1){
+		lyr1.strokeStyle = colour;
+		lyr1.lineStyle = colour;
+		lyr1.lineWidth = linewidth;
+		lyr1.beginPath();
+		lyr1.moveTo(a,b);
+		lyr1.lineTo(c,d);
+		lyr1.stroke();
+	}
+}
+
+// Draws a rectangle similar to how a line is drawn.
+// x & y determine the starting location of the rectangle.
+// dx & dy determine the width and height of the rectangle respectively.
+// Fill is a boolean variables to set whether the rectangle is filled (true) or an outline (false).
+function drawRect(x,y,dx,dy,fill,colour,linewidth,layer){
+	if(layer == 0){
+		lyr0.fillStyle = colour;
+		lyr0.lineStyle = colour;
+		lyr0.lineWidth = linewidth;
+		lyr0.rect(x,y,x+dx,y+dy);
+		lyr0.stroke();
+			if (fill == false){
+			lyr0.stroke();
+		}
+		else{
+			lyr0.fill();
+		}
+	}
+	else if(layer == 1){
+		lyr1.fillStyle = colour;
+		lyr1.lineStyle = colour;
+		lyr1.lineWidth = linewidth;
+		lyr1.rect(x,y,x+dx,y+dy);
+		lyr1.stroke();
+			if (fill == false){
+			lyr1.stroke();
+		}
+		else{
+			lyr1.fill();
+		}
+	}
+}
+
+// Function for drawing a circle.
+// x & y determine coordinates for centre of the circle.
+// r defines the radius of the circle.
+function drawCirc(x,y,r,fill,colour,linewidth,layer){
+	if(layer==0){
+		lyr0.fillStyle = colour;
+		lyr0.strokeStyle = colour;
+		lyr0.lineWidth = linewidth;
+		lyr0.beginPath();
+		lyr0.arc(x, y, r, 0, Math.PI*2, true);
+		lyr0.closePath();
+		if (fill == false){
+			lyr0.stroke();
+		}
+		else{
+			lyr0.fill();
+		}
+	}
+	else if(layer==1){
+		lyr1.fillStyle = colour;
+		lyr1.strokeStyle = colour;
+		lyr1.lineWidth = linewidth;
+		lyr1.beginPath();
+		lyr1.arc(x, y, r, 0, Math.PI*2, true);
+		lyr1.closePath();
+		if (fill == false){
+			lyr1.stroke();
+		}
+		else{
+			lyr1.fill();
+		}
+	}
+}
+
+// A modification of the random function so that min and max can be set for
+// the lower and upper limits of the returned value.
+// There is an even probability between the limits.
+function arcRand(min,max){
+	return Math.random() * (max - min) + min;
+}
+
+// Normalises the cross section values so that they add up to unity.
+// Relative differences are conserved.
+function normaliseCSValues(){
+	if (Math.abs(1 - csTotal) > 0.0001){
+		console.log("Cross sections normalised:",csTotal);
+		csAbsorb = csAbsorb / csTotal;
+		csScatter = csScatter / csTotal;
+		csFission = csFission / csTotal;
+		console.log("A:",csAbsorb," S:",csScatter," F:",csFission);
+	}
+}
+
+// Takes an rgb value and returns a hexadecimal colour code.
+function rgb(r, g, b){
+  return "rgb("+r+","+g+","+b+")";
+}
+
+// Function for drawing the reactor.
+// In this case reactor is a fancy word for circle.
+function drawReactor(){
+	drawCirc(400,400,400,false,"black",5,1);
+}
+
+// Takes x & y coordinates and determines the distance of that point
+// from the centre of the canvas (400,400).
+function calcRho(x,y){
+	return Math.sqrt(Math.pow(x-400,2) + Math.pow(y-400,2));
+}
+
+// Calculates the angle between the line y=400, and a line connecting the
+// centre of the canvas (400,400).
+function calcTheta(x,y){
+	var dx = x - 400;
+	var dy = y - 400;
+	var theta = Math.atan(dx/dy);
+
+	if ((dx<0) && (dy<0)){
+		theta = theta + Math.PI;
+	}
+	else if ((dx>0) && (dy<0)){
+		theta = theta + Math.PI;
+	}
+
+	return theta;
+}
+
+// Function for initially creating the uranium particles.
+function createUranium(){
+	for (var i=0; i<totalUranium; i++){
+		var speed = arcRand(0,1) * (uraniumTemp/400);
+		var theta = arcRand(0,2*3.142);
+
+		uranium[i] = {alive:true,interact:true,xpos:0,ypos:0,xvel:0,yvel:0,energy:0,colour:"gray"};
+		uranium[i].xvel = speed * Math.cos(theta);
+		uranium[i].yvel = speed * Math.sin(theta);
+		uranium[i].energy = 0.5 * uraniumMass * Math.pow(speed,2);
+
+		//while (calcRho(uranium[i].xpos,uranium[i].ypos) > 400){
+			uranium[i].xpos = arcRand(0,800);
+			uranium[i].ypos = arcRand(0,800);
+		//}
+	}
+}
+
+// Function for drawing all uranium particles.
+function drawUranium(){
+	for (var i=0; i<totalUranium; i++){
+		if ((uranium[i].alive == true) && (calcRho(uranium[i].xpos,uranium[i].ypos) < 400)){
+			drawCirc(uranium[i].xpos,uranium[i].ypos,crossSectionSize,true,uranium[i].colour,1,1);
+		}
+	}
+}
+
+// Function for creating all the initial neutrons.
+function createNeutrons(){
+	for (var i=0; i<initNeutronNumber; i++){
+		neutron[i] = {gen:0,alive:true,xpos:0,ypos:0,xvel:0,yvel:0,energy:0};
+		var speed = arcRand(0,1) * (neutronTemperature/400);
+		var theta = arcRand(0,2*3.142);
+
+		neutron[i].xvel = speed * Math.cos(theta);
+		neutron[i].yvel = speed * Math.sin(theta);
+		neutron[i].energy = 0.5 * uraniumMass * Math.pow(speed,2);
+
+		while (calcRho(neutron[i].xpos,neutron[i].ypos) > 50){
+			neutron[i].xpos = arcRand(300,500);
+			neutron[i].ypos = arcRand(300,500);
+		}
+		drawCirc(neutron[i].xpos,neutron[i].ypos,3,"false","green",0,0);
+	}
+}
+
+// Function for drawing all neutrons.
+function drawNeutrons(){
+	for (var i=0; i<totalNeutrons; i++){
+		if ((neutron[i].alive == true) && (calcRho(neutron[i].xpos,neutron[i].ypos) < 400)){
+			drawCirc(neutron[i].xpos,neutron[i].ypos,3,true,"blue",1,1);
+			if (genColouring == true){
+				drawCirc(neutron[i].xpos,neutron[i].ypos,1,true,genList[neutron[i].gen],0,0);
+			}
+			else {
+				drawCirc(neutron[i].xpos,neutron[i].ypos,1,true,"black",0,0);
+			}
+		}
+		else if ((neutron[i].alive == true) && (calcRho(neutron[i].xpos,neutron[i].ypos) >= 400)){
+			leftNeutrons--;
+			numEscaped++;
+			drawEscape(neutron[i].xpos,neutron[i].ypos);
+			neutron[i].alive = false;
+			neutron[i].xpos = 9999999;
+			neutron[i].ypos = -9999999;
+		}
+	}
+}
+
+// Draws all main recurring components.
+function drawAll(){
+	lyr1.clearRect(0,0,800,800);
+	drawNeutrons();
+	drawUranium();
+	drawReactor();
+}
+
+// Draws a circle around the point a neutron escaped.
+function drawEscape(x,y){
+	drawCirc(x,y,5,false,"orange",2,0);
+}
+
+// Draws a yellow circle where a fission event occurred.
+// Because this a obviously a completely realistic representation of what
+// an energy emission will look like in a reactor.
+function drawEnergy(x,y){
+	drawBang(x,y,20);
+}
+
+// Draws an indicator of where a neutron was absorbed.
+function drawAbsorbe(x,y){
+	drawCirc(x,y,3,"false","red",0,0);
+}
+
+// Draws the actual energy circle from drawEnergy().
+function drawBang(x,y,r){
+	lyr05.fillStyle = "yellow";
+	lyr05.strokeStyle = "yellow";
+	lyr05.lineWidth = 1;
+	lyr05.beginPath();
+	lyr05.arc(x, y, r, 0, Math.PI*2, true);
+	lyr05.closePath();
+	lyr05.fill();
+}
+
+// Moves the neutrons over the timeStep.
+// Also calculates if a neutron has collided with a uranium.
+// This function is the bottleneck on performance. You can have thousands of
+// uranium atoms, however each neutron needs to loop over every uranium atom
+// to detect a collision which will severely lag the program at high neutron counts.
+function moveNeutrons(){
+	for (var i=0; i<totalNeutrons; i++){
+		if (neutron[i].alive == true){
+			neutron[i].xpos += timeStep * neutron[i].xvel;
+			neutron[i].ypos += timeStep * neutron[i].yvel;
+		}
+		if (calcRho(neutron[i].xpos,neutron[i].ypos) >= 400){
+			if (neutron[i].alive == true){
+				leftNeutrons--;
+				numEscaped++;
+				drawEscape(neutron[i].xpos,neutron[i].ypos);
+			}
+			neutron[i].alive = false;
+			neutron[i].xpos = 9999999;
+			neutron[i].ypos = -9999999;
+			drawEscape(neutron[i].xpos,neutron[i].ypos);
+		}
+		for (var j=0; j<totalUranium; j++){
+			if ((Math.abs(neutron[i].xpos-uranium[j].xpos)<crossSectionSize) && (Math.abs(neutron[i].ypos-uranium[j].ypos)<crossSectionSize)){
+				if (uranium[j].interact == true){
+					collision(i,j);
+				}
+			}
+		}
+	}
+}
+
+// Similar to the moveNeutrons(), it moves the uranium atoms.
+// A difference between this function and the moveNeutrons() function
+// is that it will reflect a uranium atom if it reaches the edges of the canvas.
+function moveUranium(){
+	for (var i=0; i<totalUranium; i++){
+		if(uranium[i].alive == true){
+			uranium[i].xpos += timeStep * uranium[i].xvel;
+			uranium[i].ypos += timeStep * uranium[i].yvel;
+			if (uranium[i].xpos <= 0){
+				if (uranium[i].interact == false){
+					uranium[i].interact = true;
+				}
+				uranium[i].xvel = -uranium[i].xvel;
+			}
+			else if (uranium[i].xpos >= 800){
+				if (uranium[i].interact == false){
+					uranium[i].interact = true;
+				}
+				uranium[i].xvel = -uranium[i].xvel;
+			}
+			if (uranium[i].ypos <= 0){
+				if (uranium[i].interact == false){
+					uranium[i].interact = true;
+				}
+				uranium[i].yvel = -uranium[i].yvel;
+			}
+			else if (uranium[i].ypos >= 800){
+				if (uranium[i].interact == false){
+					uranium[i].interact = true;
+				}
+				uranium[i].yvel = -uranium[i].yvel;
+			}
+		}
+	}
+}
+
+// Determines which collisional process will occur when a neutron and
+// uranium atom collide.
+function collision(i,j){
+	var decider = arcRand(0,1);
+	if (decider <= csAbsorb){
+		drawAbsorbe(neutron[i].xpos,neutron[i].ypos);
+		numEvents++;
+		averageK = generatedNeutrons / numEvents;
+		numAbsorbed++;
+		leftNeutrons--;
+		neutron[i].alive = false;
+		neutron[i].xpos = 9999999;
+		neutron[i].ypos = 9999999;
+		uranium[j].energy += neutron[i].energy;
+		uranium[j].colour = rgb(180,120,120);
+	}
+	else if (decider <= (csAbsorb + csScatter)){
+		uranium[j].interact = false;
+		var theta = arcRand(0,2*3.142);
+		var speed = arcRand(0,10);
+		neutron[i].xvel = speed * Math.cos(theta);
+		neutron[i].yvel = speed * Math.sin(theta);
+	}
+	else {
+		numEvents++;
+		numFissioned++;
+		leftNeutrons--;
+		leftUranium--;
+		drawEnergy(neutron[i].xpos,neutron[i].ypos);
+		uranium[j].interact = false;
+		var newNeutrons = Math.round(arcRand(minNewNeutrons,maxNewNeutrons));
+		generatedNeutrons += newNeutrons;
+		averageK = generatedNeutrons / numEvents;
+		for (var k=0; k<newNeutrons; k++){
+			leftNeutrons++;
+			neutron[totalNeutrons] = {gen:0,alive:true,xpos:0,ypos:0,xvel:0,yvel:0,energy:0};
+			neutron[totalNeutrons].xpos = neutron[i].xpos;
+			neutron[totalNeutrons].ypos = neutron[i].ypos;
+
+			neutron[totalNeutrons].gen = neutron[i].gen + 1;
+
+			var speed = arcRand(0,1) * (neutronTemperature/400);
+			var theta = arcRand(0,2*3.142);
+			neutron[totalNeutrons].xvel = speed * Math.cos(theta);
+			neutron[totalNeutrons].yvel = speed * Math.sin(theta);
+			neutron[totalNeutrons].energy = 0.5 * uraniumMass * Math.pow(speed,2);
+			totalNeutrons++;
+		}
+
+		neutron[i].alive = false;
+		neutron[i].xpos = 9999999;
+		neutron[i].ypos = 9999999;
+		uranium[j].alive = false;
+		uranium[i].xpos = -9999999;
+		uranium[i].ypos = -9999999;
+	}
+}
+
+// This function is used for saving the settings and initiating the simulation.
+function begin(){
+	saveOptions();
+	intvalID = setInterval(run,10);
+}
+
+// These are all the processes that need to run over and over during simulation.
+function run(){
+	moveNeutrons();
+	moveUranium();
+	drawAll();
+	drawData();
+}
+
+// Takes values from the GUI and assigns them to the relevant variables.
+function saveOptions(){
+	lyr0.clearRect(0,0,800,800);
+	lyr05.clearRect(0,0,800,800);
+	lyr1.clearRect(0,0,800,800);
+
+	totalUranium = document.getElementById("totalUraniumNumber").value;
+	leftUranium = totalUranium;
+	uraniumTemp = document.getElementById("uraniumTemp").value;
+
+	initNeutronNumber = document.getElementById("initNeutronNumber").value;
+	leftNeutrons = initNeutronNumber;
+	neutronTemperature = document.getElementById("neutronTemp").value;
+
+	csAbsorb = document.getElementById("Absorb").value;
+	csScatter = document.getElementById("Scatter").value;
+	csFission = document.getElementById("Fission").value;
+	csTotal = Math.abs(- csAbsorb - csScatter - csFission);
+	crossSectionSize = document.getElementById("csSize").value;
+
+	minNewNeutrons = document.getElementById("minProduced").value;
+	maxNewNeutrons = document.getElementById("maxProduced").value;
+
+	genColouring = document.getElementById("colouringOn").checked;
+
+	main();
+}
+
+// Pauses the simulation.
+function pause(){
+	if (toggel == false){
+		clearInterval(intvalID);
+		toggel = true;
+	}
+	else {
+		intvalID = setInterval(run,10);
+		toggel = false;
+	}
+}
+
+// Draws the key and creates a png image of the bottom canvas.
+// This canvas can then be saved for reference.
+function capture(){
+	drawCirc(400,400,400,false,"gray",5,0);
+	//drawCirc(400,400,50,false,"lightblue",3,0);
+	lyr0.globalAlpha=1;
+	//drawRect(50,50,100,100,true,"black",4,0);
+	lyr0.lineStyle = "black";
+	//drawRect(660,2,150,660,true,"white",0,0);
+	for (var i=0; i<13; i++){
+		lyr0.fillStyle = genList[i];
+		lyr0.fillText("gen:",680,30+(40*i));
+		lyr0.fillText(i,740,30+(40*i));
+	}
+	lyr0.fillText("+",770,510);
+
+	lyr0.fillText("Emis:",680,570);
+	lyr0.fillText("Abso:",680,610);
+	lyr0.fillText("Esca:",680,650);
+	drawCirc(770,562,3,"false","green",0,0);
+	drawAbsorbe(770,602);
+	drawEscape(770,642);
+
+	var canvas = document.getElementById("lyr0");
+	var img = canvas.toDataURL("img/png").replace("img/png", "img/octet-stream");
+	window.location.href=img;
+}
+
+// Draws the HUD of the sim window.
+function drawData(){
+	//drawRect(0,0,160,75,"true","black","0","0");
+	lyr1.fillStyle="black";
+	lyr1.fillText("#U:",5,45);
+	lyr1.fillText(leftUranium,65,45);
+	lyr1.fillText("#N:",5,85);
+	lyr1.fillText(leftNeutrons,65,85);
+	lyr1.fillText("#Abs:",685,45);
+	lyr1.fillText(numAbsorbed,765,45);
+	lyr1.fillText("#Esc:",685,85);
+	lyr1.fillText(numEscaped,765,85);
+
+	lyr1.fillText("#Fis:",5,785);
+	lyr1.fillText(numFissioned,85,785);
+
+	lyr1.fillText("Av K:",645,785);
+	lyr1.fillText(Math.round(100*averageK)/100,725,785);
+}
+
+// Defined global parameters.
+// I realise that it is not good practice to declare so many globals.
+// But it was 1-6am and I was being lazy. Sorry.
+// Most of this is self explanatory.
+var initNeutronNumber = 3;
+var totalNeutrons = 0;
+var totalUranium = 100;
+var uranium = [];
+var neutron = [];
+var crossSectionSize = 10;
+var csAbsorb = 0;
+var csScatter = 1;
+var csFission = 0;
+var csTotal = 1;
+var timeStep = 0.1;
+var neutronTemperature = 6000;
+var uraniumTemp = 4000;
+var uraniumMass = 10;
+var minNewNeutrons = 1;
+var maxNewNeutrons = 3;
+// Boolean toggle for pause status. True = paused. False = running.
+// (I've just realised I can't spell toggle. -.-)
+var toggel = false;
+// The genList gives the hexadecimal colours for each generation.
+var genList = ["#3366FF","#0099FF","#33CCCC","#5CE6B8","#33CC33","#7CCF29","#E6E600","#FF9933","#FF5050","#FF3399","#FF00FF","#9966FF","black"];
+// Boolean value for generation colouring.
+var genColouring = "false";
+// Variables used for recording what to display on the sim HUD.
+var leftUranium = totalUranium;
+var leftNeutrons = initNeutronNumber;
+var numAbsorbed = 0;
+var numEscaped = 0;
+var numFissioned = 0;
+var averageK = 0;
+var numEvents = 0;
+var generatedNeutrons = 0;
+
+// The functions that execute at runtime.
+drawReactor();
+
+// The main function.
+// This draws everything statically before dynamic simulation is initiated.
+function main(){
+	normaliseCSValues();
+	totalNeutrons = initNeutronNumber;
+	drawReactor();
+	createUranium();
+	drawUranium();
+	createNeutrons();
+	drawNeutrons();
+}
+</script>
